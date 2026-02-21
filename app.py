@@ -4,10 +4,9 @@ import pickle
 
 app = Flask(__name__)
 
-# ---------------- LOAD DATASET ----------------
+# ---------------- LOAD DATA ----------------
 data = pd.read_csv("Salary Data.csv").dropna()
 
-# Extract dropdown values dynamically from dataset
 job_titles = sorted(data["Job Title"].unique())
 education_levels = sorted(data["Education Level"].unique())
 genders = sorted(data["Gender"].unique())
@@ -15,12 +14,11 @@ genders = sorted(data["Gender"].unique())
 # ---------------- LOAD MODEL ----------------
 model = pickle.load(open("salary_model.pkl", "rb"))
 
-# You can replace these with real computed values if available
-MODEL_ACCURACY = 92.4     # example value
+MODEL_ACCURACY = 92.4
 POLY_DEGREE = 2
 
 
-# ---------------- HOME PAGE ----------------
+# ---------------- HOME ----------------
 @app.route("/")
 def home():
     return render_template(
@@ -29,33 +27,31 @@ def home():
         education_levels=education_levels,
         genders=genders,
         accuracy=MODEL_ACCURACY,
-        degree=POLY_DEGREE
+        degree=POLY_DEGREE,
+        form_data={}
     )
 
 
-# ---------------- PREDICTION ----------------
+# ---------------- PREDICT ----------------
 @app.route("/predict", methods=["POST"])
 def predict():
 
-    # Collect form inputs
-    age = float(request.form["age"])
-    experience = float(request.form["experience"])
-    education = request.form["education"]
-    job = request.form["job"]
+    form_data = {
+        "age": float(request.form["age"]),
+        "experience": float(request.form["experience"]),
+        "education": request.form["education"],
+        "job": request.form["job"],
+        "gender": request.form.get("gender", "Male")
+    }
 
-    # If gender added later in UI, uncomment this:
-    # gender = request.form["gender"]
-
-    # Create dataframe for prediction
     input_df = pd.DataFrame([{
-        "Age": age,
-        "Years of Experience": experience,
-        "Education Level": education,
-        "Job Title": job,
-        "Gender": "Male"   # default if not in form; change if you add gender input
+        "Age": form_data["age"],
+        "Years of Experience": form_data["experience"],
+        "Education Level": form_data["education"],
+        "Job Title": form_data["job"],
+        "Gender": form_data["gender"]
     }])
 
-    # Predict salary
     prediction = model.predict(input_df)[0]
 
     return render_template(
@@ -65,10 +61,11 @@ def predict():
         education_levels=education_levels,
         genders=genders,
         accuracy=MODEL_ACCURACY,
-        degree=POLY_DEGREE
+        degree=POLY_DEGREE,
+        form_data=form_data
     )
 
 
-# ---------------- RUN APP ----------------
+# ---------------- RUN ----------------
 if __name__ == "__main__":
     app.run(debug=True)

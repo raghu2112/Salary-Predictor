@@ -1,160 +1,210 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Salary Predictor</title>
+<title>Salary Predictor</title>
 
-    <style>
-        body{
-            font-family: 'Segoe UI', sans-serif;
-            background:#f3f5f7;
-            margin:0;
-        }
+<style>
+:root{
+    --primary:#2563eb;
+    --accent:#10b981;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#e5e7eb;
+}
 
-        .wrapper{
-            width:720px;
-            margin:40px auto;
-        }
+body{
+    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
+    background:var(--bg);
+    margin:0;
+    color:var(--text);
+    line-height:1.6;
+}
 
-        .card{
-            background:white;
-            padding:28px;
-            border-radius:14px;
-            box-shadow:0 10px 30px rgba(0,0,0,0.08);
-            margin-bottom:25px;
-        }
+.wrapper{
+    width:760px;
+    margin:50px auto;
+}
 
-        h2{
-            margin-top:0;
-            color:#1f2937;
-        }
+.card{
+    background:var(--card);
+    padding:34px;
+    border-radius:16px;
+    border:1px solid var(--border);
+    box-shadow:0 8px 24px rgba(0,0,0,0.05);
+    margin-bottom:24px;
+}
 
-        .sub{
-            color:#6b7280;
-            margin-bottom:25px;
-        }
+h2{
+    margin-top:0;
+    font-weight:600;
+    letter-spacing:-0.3px;
+}
 
-        label{
-            font-weight:600;
-            display:block;
-            margin-top:18px;
-            margin-bottom:6px;
-        }
+h3{
+    margin-top:0;
+    font-weight:600;
+}
 
-        input[type=range]{
-            width:100%;
-        }
+label{
+    font-weight:600;
+    display:block;
+    margin-top:20px;
+    margin-bottom:6px;
+}
 
-        .range-value{
-            float:right;
-            font-weight:700;
-            color:#2563eb;
-        }
+.range-value{
+    float:right;
+    font-weight:600;
+    color:var(--primary);
+}
 
-        select,input[type=text]{
-            width:100%;
-            padding:12px;
-            border-radius:8px;
-            border:1px solid #d1d5db;
-            font-size:15px;
-        }
+input[type=range]{
+    width:100%;
+    accent-color:var(--primary);
+}
 
-        button{
-            width:100%;
-            margin-top:28px;
-            padding:16px;
-            border:none;
-            border-radius:10px;
-            font-size:17px;
-            font-weight:600;
-            color:white;
-            background:linear-gradient(90deg,#ff6a00,#22c55e);
-            cursor:pointer;
-        }
+select{
+    width:100%;
+    padding:12px 14px;
+    border-radius:10px;
+    border:1px solid var(--border);
+    font-size:15px;
+    background:white;
+}
 
-        button:hover{
-            opacity:0.95;
-        }
+select:focus{
+    outline:none;
+    border-color:var(--primary);
+}
 
-        .info{
-            color:#374151;
-            line-height:1.6;
-        }
+button{
+    width:100%;
+    margin-top:28px;
+    padding:16px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:600;
+    color:white;
+    background:linear-gradient(90deg,var(--primary),var(--accent));
+    cursor:pointer;
+    transition:0.25s ease;
+}
 
-        .result{
-            font-size:22px;
-            font-weight:700;
-            color:#065f46;
-            text-align:center;
-            margin-top:15px;
-        }
-    </style>
+button:hover{
+    transform:translateY(-1px);
+    box-shadow:0 6px 18px rgba(37,99,235,0.25);
+}
 
-    <script>
-        function updateValue(id, output){
-            document.getElementById(output).innerText =
-                document.getElementById(id).value + " years";
-        }
-    </script>
+.result{
+    margin-top:24px;
+    padding:16px;
+    border-radius:12px;
+    background:#ecfdf5;
+    border:1px solid #a7f3d0;
+    font-size:20px;
+    font-weight:700;
+    text-align:center;
+    color:#065f46;
+}
+
+.model-info{
+    color:var(--muted);
+    font-size:15px;
+}
+
+</style>
+
+<script>
+function updateValue(id, output){
+    document.getElementById(output).innerText =
+        document.getElementById(id).value + " years";
+}
+</script>
+
 </head>
 
 <body>
 
 <div class="wrapper">
 
-    <!-- FORM CARD -->
-    <div class="card">
-        <h2>Enter Your Professional Details</h2>
-        <div class="sub">Fill in your information to predict salary</div>
+<div class="card">
+<h2>Enter Your Professional Details</h2>
 
-        <form action="/predict" method="post">
+<form action="/predict" method="post">
 
-            <!-- EXPERIENCE -->
-            <label>Years of Experience
-                <span id="exp_val" class="range-value">5 years</span>
-            </label>
-            <input type="range" id="experience" name="experience"
-                   min="0" max="25" value="5"
-                   oninput="updateValue('experience','exp_val')">
-
-            <!-- EDUCATION -->
-            <label>Education Level</label>
-            <select name="education" required>
-                {% for e in education_levels %}
-                <option>{{ e }}</option>
-                {% endfor %}
-            </select>
-
-            <!-- AGE -->
-            <label>Age
-                <span id="age_val" class="range-value">27 years</span>
-            </label>
-            <input type="range" id="age" name="age"
-                   min="18" max="60" value="27"
-                   oninput="updateValue('age','age_val')">
-
-            <!-- JOB TITLE (FROM DATASET) -->
-            <label>Job Title</label>
-            <select name="job" required>
-                {% for j in job_titles %}
-                <option>{{ j }}</option>
-                {% endfor %}
-            </select>
-
-            <button type="submit">Predict Salary</button>
-        </form>
-
-        {% if prediction_text %}
-        <div class="result">{{ prediction_text }}</div>
-        {% endif %}
-    </div>
+<label>Years of Experience
+<span id="exp_val" class="range-value">
+{{ form_data.experience if form_data else 5 }} years
+</span>
+</label>
+<input type="range" name="experience" id="experience"
+min="0" max="25"
+value="{{ form_data.experience if form_data else 5 }}"
+oninput="updateValue('experience','exp_val')">
 
 
-    <!-- MODEL INFO CARD -->
-    <div class="card info">
-        <h3>Model Information</h3>
-        <p><b>Model Accuracy:</b> {{ accuracy }}%</p>
-        <p><b>Polynomial Degree:</b> {{ degree }}</p>
-    </div>
+<label>Education Level</label>
+<select name="education">
+{% for e in education_levels %}
+<option value="{{ e }}"
+{% if form_data and form_data.education == e %}selected{% endif %}>
+{{ e }}
+</option>
+{% endfor %}
+</select>
+
+
+<label>Age
+<span id="age_val" class="range-value">
+{{ form_data.age if form_data else 27 }} years
+</span>
+</label>
+<input type="range" name="age" id="age"
+min="18" max="60"
+value="{{ form_data.age if form_data else 27 }}"
+oninput="updateValue('age','age_val')">
+
+
+<label>Job Title</label>
+<select name="job">
+{% for j in job_titles %}
+<option value="{{ j }}"
+{% if form_data and form_data.job == j %}selected{% endif %}>
+{{ j }}
+</option>
+{% endfor %}
+</select>
+
+
+<label>Gender</label>
+<select name="gender">
+{% for g in genders %}
+<option value="{{ g }}"
+{% if form_data and form_data.gender == g %}selected{% endif %}>
+{{ g }}
+</option>
+{% endfor %}
+</select>
+
+<button type="submit">Predict Salary</button>
+
+</form>
+
+{% if prediction_text %}
+<div class="result">{{ prediction_text }}</div>
+{% endif %}
+
+</div>
+
+
+<div class="card">
+<h3>Model Information</h3>
+<p><b>Accuracy:</b> {{ accuracy }}%</p>
+<p><b>Polynomial Degree:</b> {{ degree }}</p>
+</div>
 
 </div>
 

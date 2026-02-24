@@ -37,7 +37,7 @@ The application includes a trained regression model, a modern UI, and is ready f
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/salary-predictor.git
+git clone https://github.com/raghu2112/Salary-Predictor
 cd salary-predictor
 ```
 ### 2. Install dependencies

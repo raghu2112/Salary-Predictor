@@ -2,212 +2,609 @@
 <html>
 <head>
 <title>Salary Predictor</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
-:root{
-    --primary:#2563eb;
-    --accent:#10b981;
-    --text:#1f2937;
-    --muted:#6b7280;
-    --bg:#f8fafc;
-    --card:#ffffff;
-    --border:#e5e7eb;
+:root {
+    --gold:       #a0722a;
+    --gold-light: #c9921e;
+    --gold-dim:   rgba(160,114,42,0.10);
+    --bg:         #f4f1ec;
+    --surface:    #ffffff;
+    --surface-2:  #f8f6f2;
+    --border:     rgba(160,114,42,0.22);
+    --border-dim: rgba(0,0,0,0.08);
+    --text:       #1b1b2e;
+    --muted:      #7a7a96;
+    --accent:     #2c5fe3;
+    --green:      #15803d;
 }
 
-body{
-    font-family: "Inter", "Segoe UI", system-ui, sans-serif;
-    background:var(--bg);
-    margin:0;
-    color:var(--text);
-    line-height:1.6;
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: "DM Sans", sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
 }
 
-.wrapper{
-    width:760px;
-    margin:50px auto;
+/* ── Background grid ── */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background-image:
+        linear-gradient(rgba(0,0,0,0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,0,0,0.045) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none;
+    z-index: 0;
 }
 
-.card{
-    background:var(--card);
-    padding:34px;
-    border-radius:16px;
-    border:1px solid var(--border);
-    box-shadow:0 8px 24px rgba(0,0,0,0.05);
-    margin-bottom:24px;
+/* Soft orbs */
+body::after {
+    content: "";
+    position: fixed;
+    top: -200px;
+    right: -200px;
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, rgba(44,95,227,0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
 }
 
-h2{
-    margin-top:0;
-    font-weight:600;
-    letter-spacing:-0.3px;
+.orb-bottom {
+    position: fixed;
+    bottom: -300px;
+    left: -150px;
+    width: 700px;
+    height: 700px;
+    background: radial-gradient(circle, rgba(160,114,42,0.07) 0%, transparent 65%);
+    pointer-events: none;
+    z-index: 0;
 }
 
-h3{
-    margin-top:0;
-    font-weight:600;
+/* ── Layout ── */
+.wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 820px;
+    margin: 0 auto;
+    padding: 60px 24px 80px;
 }
 
-label{
-    font-weight:600;
-    display:block;
-    margin-top:20px;
-    margin-bottom:6px;
+/* ── Header ── */
+.header {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeDown 0.7s ease both;
 }
 
-.range-value{
-    float:right;
-    font-weight:600;
-    color:var(--primary);
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 6px 16px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 22px;
 }
 
-input[type=range]{
-    width:100%;
-    accent-color:var(--primary);
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: pulse 2s ease infinite;
 }
 
-select{
-    width:100%;
-    padding:12px 14px;
-    border-radius:10px;
-    border:1px solid var(--border);
-    font-size:15px;
-    background:white;
+h1 {
+    font-family: "Playfair Display", serif;
+    font-size: clamp(36px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #1b1b2e 30%, var(--gold-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
 }
 
-select:focus{
-    outline:none;
-    border-color:var(--primary);
+.subtitle {
+    color: var(--muted);
+    font-size: 16px;
+    font-weight: 300;
+    letter-spacing: 0.2px;
 }
 
-button{
-    width:100%;
-    margin-top:28px;
-    padding:16px;
-    border:none;
-    border-radius:12px;
-    font-size:16px;
-    font-weight:600;
-    color:white;
-    background:linear-gradient(90deg,var(--primary),var(--accent));
-    cursor:pointer;
-    transition:0.25s ease;
+/* ── Cards ── */
+.card {
+    background: var(--surface);
+    border: 1px solid var(--border-dim);
+    border-radius: 20px;
+    padding: 40px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeUp 0.6s ease both;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06), 0 1px 4px rgba(0,0,0,0.04);
 }
 
-button:hover{
-    transform:translateY(-1px);
-    box-shadow:0 6px 18px rgba(37,99,235,0.25);
+.card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0.5;
 }
 
-.result{
-    margin-top:24px;
-    padding:16px;
-    border-radius:12px;
-    background:#ecfdf5;
-    border:1px solid #a7f3d0;
-    font-size:20px;
-    font-weight:700;
-    text-align:center;
-    color:#065f46;
+.card:nth-child(2) { animation-delay: 0.1s; }
+.card:nth-child(3) { animation-delay: 0.2s; }
+
+.card-title {
+    font-family: "Playfair Display", serif;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 28px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
-.model-info{
-    color:var(--muted);
-    font-size:15px;
+.card-title-icon {
+    width: 32px;
+    height: 32px;
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
 }
 
+/* ── Form Grid ── */
+.form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px 32px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.form-group.full { grid-column: 1 / -1; }
+
+label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.range-value {
+    font-family: "DM Mono", monospace;
+    font-size: 13px;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 2px 10px;
+    letter-spacing: 0.5px;
+}
+
+/* ── Range slider ── */
+input[type=range] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 2px;
+    background: var(--border-dim);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+    position: relative;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(160,114,42,0.25);
+    transition: box-shadow 0.2s, transform 0.2s;
+}
+
+input[type=range]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px rgba(160,114,42,0.4);
+    transform: scale(1.15);
+}
+
+input[type=range]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.range-track-wrap {
+    position: relative;
+}
+
+/* ── Select ── */
+.select-wrap {
+    position: relative;
+}
+
+.select-wrap::after {
+    content: "▾";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--gold);
+    pointer-events: none;
+    font-size: 13px;
+}
+
+select {
+    width: 100%;
+    padding: 13px 42px 13px 16px;
+    background: var(--surface-2);
+    border: 1px solid var(--border-dim);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: "DM Sans", sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+select:focus {
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.1);
+}
+
+select option {
+    background: var(--surface-2);
+}
+
+/* ── Button ── */
+.btn-wrap {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+}
+
+button {
+    width: 100%;
+    padding: 18px 32px;
+    border: none;
+    border-radius: 14px;
+    font-family: "DM Sans", sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--bg);
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 50%, var(--gold) 100%);
+    background-size: 200% 200%;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s, background-position 0.4s;
+    position: relative;
+    overflow: hidden;
+}
+
+button::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(201,168,76,0.35);
+    background-position: 100% 100%;
+}
+
+button:hover::before { opacity: 1; }
+button:active { transform: translateY(0); }
+
+/* ── Result ── */
+.result {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    padding: 24px 28px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, rgba(21,128,61,0.07), rgba(21,128,61,0.03));
+    border: 1px solid rgba(21,128,61,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    animation: resultReveal 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+.result-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--green);
+    opacity: 0.7;
+    margin-bottom: 6px;
+}
+
+.result-value {
+    font-family: "Playfair Display", serif;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--green);
+    letter-spacing: -0.5px;
+}
+
+.result-icon {
+    width: 52px;
+    height: 52px;
+    background: rgba(21,128,61,0.08);
+    border: 1px solid rgba(21,128,61,0.18);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+}
+
+/* ── Model Info Card ── */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+}
+
+.stat-item {
+    background: var(--surface-2);
+    border: 1px solid var(--border-dim);
+    border-radius: 14px;
+    padding: 20px;
+    text-align: center;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.stat-item:hover {
+    border-color: rgba(160,114,42,0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+}
+
+.stat-num {
+    font-family: "DM Mono", monospace;
+    font-size: 26px;
+    font-weight: 500;
+    color: var(--gold);
+    line-height: 1;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+/* ── Animations ── */
+@keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.4; }
+}
+
+@keyframes resultReveal {
+    from { opacity: 0; transform: scale(0.95) translateY(8px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+    .form-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .card { padding: 28px 20px; }
+}
 </style>
 
 <script>
-function updateValue(id, output){
+function updateValue(id, output) {
     document.getElementById(output).innerText =
-        document.getElementById(id).value + " years";
+        document.getElementById(id).value + " yrs";
 }
 </script>
 
 </head>
-
 <body>
+
+<div class="orb-bottom"></div>
 
 <div class="wrapper">
 
-<div class="card">
-<h2>Enter Your Professional Details</h2>
+    <!-- Header -->
+    <div class="header">
+        <div class="badge">
+            <span class="badge-dot"></span>
+            AI-Powered Estimation
+        </div>
+        <h1>Salary Predictor</h1>
+        <p class="subtitle">Enter your professional profile to receive a data-driven compensation estimate.</p>
+    </div>
 
-<form action="/predict" method="post">
+    <!-- Main form card -->
+    <div class="card">
+        <div class="card-title">
+            <div class="card-title-icon">✦</div>
+            Professional Profile
+        </div>
 
-<label>Years of Experience
-<span id="exp_val" class="range-value">
-{{ form_data.experience if form_data else 5 }} years
-</span>
-</label>
-<input type="range" name="experience" id="experience"
-min="0" max="25"
-value="{{ form_data.experience if form_data else 5 }}"
-oninput="updateValue('experience','exp_val')">
+        <form action="/predict" method="post">
+        <div class="form-grid">
 
+            <!-- Experience -->
+            <div class="form-group">
+                <label>
+                    Experience
+                    <span id="exp_val" class="range-value">
+                        {{ form_data.experience if form_data else 5 }} yrs
+                    </span>
+                </label>
+                <input type="range" name="experience" id="experience"
+                    min="0" max="25"
+                    value="{{ form_data.experience if form_data else 5 }}"
+                    oninput="updateValue('experience','exp_val')">
+            </div>
 
-<label>Education Level</label>
-<select name="education">
-{% for e in education_levels %}
-<option value="{{ e }}"
-{% if form_data and form_data.education == e %}selected{% endif %}>
-{{ e }}
-</option>
-{% endfor %}
-</select>
+            <!-- Age -->
+            <div class="form-group">
+                <label>
+                    Age
+                    <span id="age_val" class="range-value">
+                        {{ form_data.age if form_data else 27 }} yrs
+                    </span>
+                </label>
+                <input type="range" name="age" id="age"
+                    min="18" max="60"
+                    value="{{ form_data.age if form_data else 27 }}"
+                    oninput="updateValue('age','age_val')">
+            </div>
 
+            <!-- Education -->
+            <div class="form-group">
+                <label>Education Level</label>
+                <div class="select-wrap">
+                    <select name="education">
+                        {% for e in education_levels %}
+                        <option value="{{ e }}"
+                            {% if form_data and form_data.education == e %}selected{% endif %}>
+                            {{ e }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-<label>Age
-<span id="age_val" class="range-value">
-{{ form_data.age if form_data else 27 }} years
-</span>
-</label>
-<input type="range" name="age" id="age"
-min="18" max="60"
-value="{{ form_data.age if form_data else 27 }}"
-oninput="updateValue('age','age_val')">
+            <!-- Job Title -->
+            <div class="form-group">
+                <label>Job Title</label>
+                <div class="select-wrap">
+                    <select name="job">
+                        {% for j in job_titles %}
+                        <option value="{{ j }}"
+                            {% if form_data and form_data.job == j %}selected{% endif %}>
+                            {{ j }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
+            <!-- Gender -->
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="select-wrap">
+                    <select name="gender">
+                        {% for g in genders %}
+                        <option value="{{ g }}"
+                            {% if form_data and form_data.gender == g %}selected{% endif %}>
+                            {{ g }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
 
-<label>Job Title</label>
-<select name="job">
-{% for j in job_titles %}
-<option value="{{ j }}"
-{% if form_data and form_data.job == j %}selected{% endif %}>
-{{ j }}
-</option>
-{% endfor %}
-</select>
+            <!-- Spacer on desktop -->
+            <div class="form-group"></div>
 
+            <!-- Submit -->
+            <div class="btn-wrap">
+                <button type="submit">Calculate Estimated Salary →</button>
+            </div>
 
-<label>Gender</label>
-<select name="gender">
-{% for g in genders %}
-<option value="{{ g }}"
-{% if form_data and form_data.gender == g %}selected{% endif %}>
-{{ g }}
-</option>
-{% endfor %}
-</select>
+            <!-- Result -->
+            {% if prediction_text %}
+            <div class="result">
+                <div>
+                    <div class="result-label">Predicted Annual Salary</div>
+                    <div class="result-value">{{ prediction_text }}</div>
+                </div>
+                <div class="result-icon">💰</div>
+            </div>
+            {% endif %}
 
-<button type="submit">Predict Salary</button>
+        </div>
+        </form>
+    </div>
 
-</form>
-
-{% if prediction_text %}
-<div class="result">{{ prediction_text }}</div>
-{% endif %}
+    <!-- Model info card -->
+    <div class="card">
+        <div class="card-title">
+            <div class="card-title-icon">⬡</div>
+            Model Diagnostics
+        </div>
+        <div class="stats-grid">
+            <div class="stat-item">
+                <div class="stat-num">{{ accuracy }}%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">{{ degree }}</div>
+                <div class="stat-label">Poly Degree</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-num">1,000</div>
+                <div class="stat-label">Training Samples</div>
+            </div>
+        </div>
+    </div>
 
 </div>
-
-
-<div class="card">
-<h3>Model Information</h3>
-<p><b>Accuracy:</b> {{ accuracy }}%</p>
-<p><b>Polynomial Degree:</b> {{ degree }}</p>
-<p><b>Training Samples:</b>1000</p>
-</div>
-
-</div>
-
 </body>
 </html>
